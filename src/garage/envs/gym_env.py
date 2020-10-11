@@ -215,7 +215,10 @@ class GymEnv(Environment):
         if self._visualize:
             self._env.render(mode='human')
 
-        reward = float(reward) if not isinstance(reward, float) else reward
+        if (reward is not None) and (not isinstance(reward, float)):
+            reward = float(reward)
+        else:
+            reward = reward
         self._step_cnt += 1
 
         step_type = StepType.get_step_type(
