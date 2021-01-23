@@ -169,7 +169,8 @@ class Trainer:
                      max_episode_length=None,
                      worker_class=None,
                      sampler_args=None,
-                     worker_args=None):
+                     worker_args=None,
+                     envs=None):
         """Construct a Sampler from a Sampler class.
 
         Args:
@@ -200,6 +201,8 @@ class Trainer:
             raise ValueError('If the trainer is used to construct a sampler, '
                              'the algorithm must have a `policy` or '
                              '`exploration_policy` field.')
+        if envs is None:
+            envs = self._env
         if max_episode_length is None:
             if hasattr(self._algo, 'max_episode_length'):
                 max_episode_length = self._algo.max_episode_length
@@ -221,7 +224,7 @@ class Trainer:
             worker_class=worker_class,
             worker_args=worker_args),
                                                agents=policy,
-                                               envs=self._env)
+                                               envs=envs)
 
     def setup(self,
               algo,
@@ -305,14 +308,12 @@ class Trainer:
 
         self._eval_worker_args = worker_args
 
-        if sampler_cls is None:
-            self._eval_sampler = None
-        else:
-            self._eval_sampler = self.make_sampler(sampler_cls,
-                                              sampler_args=sampler_args,
-                                              n_workers=n_workers,
-                                              worker_class=worker_class,
-                                              worker_args=worker_args)
+        self._eval_sampler = self.make_sampler(sampler_cls,
+                                          sampler_args=sampler_args,
+                                          n_workers=n_workers,
+                                          worker_class=worker_class,
+                                          worker_args=worker_args,
+                                          envs=self.get_env_copy())
 
         self._eval_has_setup = True
 
