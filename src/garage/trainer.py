@@ -132,6 +132,7 @@ class Trainer:
         self._plot = False
 
         self._setup_args = None
+        self._eval_setup_args = None
         self._train_args = None
         self._stats = ExperimentStats(total_itr=0,
                                       total_env_steps=0,
@@ -141,6 +142,7 @@ class Trainer:
         self._algo = None
         self._env = None
         self._sampler = None
+        self._eval_sampler = None
         self._plotter = None
 
         self._start_time = None
@@ -154,6 +156,10 @@ class Trainer:
         self._n_workers = None
         self._worker_class = None
         self._worker_args = None
+
+        self._eval_n_workers = None
+        self._eval_worker_class = None
+        self._eval_worker_args = None
 
     def make_sampler(self,
                      sampler_cls,
@@ -277,6 +283,43 @@ class Trainer:
         self._setup_args = SetupArgs(sampler_cls=sampler_cls,
                                      sampler_args=sampler_args,
                                      seed=get_seed())
+
+    def eval_sampler_setup(
+            self,
+            sampler_cls=None,
+            sampler_args=None,
+            n_workers=psutil.cpu_count(logical=False),
+            worker_class=None,
+            worker_args=None):
+
+        self._eval_n_workers = n_workers
+        self._eval_worker_class = worker_class
+        if sampler_args is None:
+            sampler_args = {}
+        if sampler_cls is None:
+            sampler_cls = getattr(algo, 'sampler_cls', None)
+        if worker_class is None:
+            worker_class = getattr(algo, 'worker_cls', DefaultWorker)
+        if worker_args is None:
+            worker_args = {}
+
+        self._eval_worker_args = worker_args
+
+        if sampler_cls is None:
+            self._eval_sampler = None
+        else:
+            self._eval_sampler = self.make_sampler(sampler_cls,
+                                              sampler_args=sampler_args,
+                                              n_workers=n_workers,
+                                              worker_class=worker_class,
+                                              worker_args=worker_args)
+
+        self._eval_has_setup = True
+
+        self._eval_setup_args = SetupArgs(sampler_cls=sampler_cls,
+                                     sampler_args=sampler_args,
+                                     seed=get_seed())
+
 
     def _start_worker(self):
         """Start Plotter and Sampler workers."""
@@ -405,6 +448,12 @@ class Trainer:
         params['worker_class'] = self._worker_class
         params['worker_args'] = self._worker_args
 
+        if self._eval_setup_args is not None:
+            params['eval_n_workers'] = self._eval_n_workers
+            params['eval_worker_class'] = self._eval_worker_class
+            params['eval_worker_args'] = self._eval_worker_args
+            params['eval_setup_args'] = self._eval_setup_args
+
         self._snapshotter.save_itr_params(epoch, params)
 
         logger.log('Saved')
@@ -438,6 +487,15 @@ class Trainer:
                    n_workers=saved['n_workers'],
                    worker_class=saved['worker_class'],
                    worker_args=saved['worker_args'])
+
+        if 'eval_setup_args' in saved.keys():
+            self._eval_setup_args = saved['eval_setup_args']
+            self.eval_sampler_setup(
+                sampler_cls=self._eval_setup_args.sampler_cls,
+                sampler_args=self._eval_setup_args.sampler_args,
+                n_workers=saved['eval_n_workers'],
+                worker_class=saved['eval_worker_class'],
+                worker_args=saved['eval_worker_args'])
 
         n_epochs = self._train_args.n_epochs
         last_epoch = self._stats.total_epoch
