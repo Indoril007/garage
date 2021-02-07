@@ -230,7 +230,7 @@ class EpisodeBatch(
                 'step_types tensor must be dtype `StepType`, but got tensor '
                 'of dtype {} instead.'.format(step_types.dtype))
 
-        return super().__new__(EpisodeBatch, env_spec, observations,
+        return super().__new__(cls, env_spec, observations,
                                last_observations, actions, rewards, env_infos,
                                agent_infos, step_types, lengths)
 
@@ -806,7 +806,7 @@ class TimeStepBatch(
                     'length {}, but got key {} with batch size {} instead.'.
                     format(inferred_batch_size, key, val.shape[0]))
 
-        return super().__new__(TimeStepBatch, env_spec, observations, actions,
+        return super().__new__(cls, env_spec, observations, actions,
                                rewards, next_observations, env_infos,
                                agent_infos, step_types)
 
