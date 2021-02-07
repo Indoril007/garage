@@ -289,6 +289,7 @@ class Trainer:
 
     def eval_sampler_setup(
             self,
+            eval_env,
             sampler_cls=None,
             sampler_args=None,
             n_workers=psutil.cpu_count(logical=False),
@@ -307,13 +308,14 @@ class Trainer:
             worker_args = {}
 
         self._eval_worker_args = worker_args
+        self._eval_env = eval_env
 
         self._eval_sampler = self.make_sampler(sampler_cls,
                                           sampler_args=sampler_args,
                                           n_workers=n_workers,
                                           worker_class=worker_class,
                                           worker_args=worker_args,
-                                          envs=self.get_env_copy())
+                                          envs=eval_env)
 
         self._eval_has_setup = True
 
@@ -450,6 +452,7 @@ class Trainer:
         params['worker_args'] = self._worker_args
 
         if self._eval_setup_args is not None:
+            params['eval_env'] = self._eval_env
             params['eval_n_workers'] = self._eval_n_workers
             params['eval_worker_class'] = self._eval_worker_class
             params['eval_worker_args'] = self._eval_worker_args
@@ -492,6 +495,7 @@ class Trainer:
         if 'eval_setup_args' in saved.keys():
             self._eval_setup_args = saved['eval_setup_args']
             self.eval_sampler_setup(
+                env=params['eval_env'],
                 sampler_cls=self._eval_setup_args.sampler_cls,
                 sampler_args=self._eval_setup_args.sampler_args,
                 n_workers=saved['eval_n_workers'],
