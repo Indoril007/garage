@@ -68,7 +68,7 @@ class CategoricalCNNModule(nn.Module):
     """
 
     def __init__(self,
-                 input_var,
+                 in_channels,
                  output_dim,
                  kernel_sizes,
                  hidden_channels,
@@ -88,7 +88,7 @@ class CategoricalCNNModule(nn.Module):
                  layer_normalization=False,
                  is_image=True):
         super().__init__()
-        self._input_var = input_var
+        self._in_channels = in_channels
         self._action_dim = output_dim
         self._kernel_sizes = kernel_sizes
         self._strides = strides
@@ -109,7 +109,7 @@ class CategoricalCNNModule(nn.Module):
         self._is_image = is_image
 
         self._cnn_module = CNNModule(
-            input_var=self._input_var,
+            in_channels=self._in_channels,
             kernel_sizes=self._kernel_sizes,
             strides=self._strides,
             hidden_channels=self._hidden_conv_channels,

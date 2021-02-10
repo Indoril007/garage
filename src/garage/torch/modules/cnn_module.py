@@ -55,7 +55,7 @@ class CNNModule(nn.Module):
     """
 
     def __init__(self,
-                 input_var,
+                 in_channels,
                  hidden_channels,
                  kernel_sizes,
                  strides,
@@ -89,7 +89,7 @@ class CNNModule(nn.Module):
         self._is_image = is_image
 
         self._cnn_layers = nn.ModuleList()
-        self._in_channel = input_var.shape[1]  # read in N, C, H, W
+        self._in_channel = in_channels
         self._CNNCell()
 
     @classmethod

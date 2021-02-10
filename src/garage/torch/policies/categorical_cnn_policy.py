@@ -65,6 +65,7 @@ class CategoricalCNNPolicy(StochasticPolicy):
 
     def __init__(self,
                  env,
+                 in_channels,
                  kernel_sizes,
                  hidden_channels,
                  strides=1,
@@ -113,20 +114,8 @@ class CategoricalCNNPolicy(StochasticPolicy):
         self._is_image = isinstance(self._env.spec.observation_space,
                                     akro.Image)
 
-    def forward(self, observations):
-        """Compute the action distributions from the observations.
-
-        Args:
-            observations (torch.Tensor): Batch of observations on default
-                torch device.
-
-        Returns:
-            torch.distributions.Distribution: Batch distribution of actions.
-            dict[str, torch.Tensor]: Additional agent_info, as torch Tensors.
-                Do not need to be detached, and can be on any device.
-        """
-        module = CategoricalCNNModule(
-            input_var=observations,
+        self._module = CategoricalCNNModule(
+            in_channels=in_channels,
             output_dim=self._action_dim,
             kernel_sizes=self._kernel_sizes,
             strides=self._strides,
@@ -146,5 +135,17 @@ class CategoricalCNNPolicy(StochasticPolicy):
             layer_normalization=self._layer_normalization,
             is_image=self._is_image)
 
-        dist = module(observations)
+    def forward(self, observations):
+        """Compute the action distributions from the observations.
+
+        Args:
+            observations (torch.Tensor): Batch of observations on default
+                torch device.
+
+        Returns:
+            torch.distributions.Distribution: Batch distribution of actions.
+            dict[str, torch.Tensor]: Additional agent_info, as torch Tensors.
+                Do not need to be detached, and can be on any device.
+        """
+        dist = self._module(observations)
         return dist, {}
