@@ -64,9 +64,9 @@ class LocalSampler(Sampler):
             raise TypeError('Must construct a sampler from WorkerFactory or'
                             'parameters (at least max_episode_length)')
         if isinstance(worker_factory, WorkerFactory):
-            self._factory = worker_factory
+            self._worker_factory = worker_factory
         else:
-            self._factory = WorkerFactory(
+            self._worker_factory = WorkerFactory(
                 max_episode_length=max_episode_length,
                 is_tf_worker=is_tf_worker,
                 seed=seed,
@@ -74,11 +74,12 @@ class LocalSampler(Sampler):
                 worker_class=worker_class,
                 worker_args=worker_args)
 
-        self._agents = self._factory.prepare_worker_messages(agents)
-        self._envs = self._factory.prepare_worker_messages(
+        self._agents = self._worker_factory.prepare_worker_messages(agents)
+        self._envs = self._worker_factory.prepare_worker_messages(
             envs, preprocess=copy.deepcopy)
         self._workers = [
-            self._factory(i) for i in range(self._factory.n_workers)
+            self._worker_factory(i) for
+            i in range(self._worker_factory.n_workers)
         ]
         for worker, agent, env in zip(self._workers, self._agents, self._envs):
             worker.update_agent(agent)
@@ -123,8 +124,9 @@ class LocalSampler(Sampler):
                 be spread across the workers.
 
         """
-        agent_updates = self._factory.prepare_worker_messages(agent_update)
-        env_updates = self._factory.prepare_worker_messages(
+        agent_updates = (
+            self._worker_factory.prepare_worker_messages(agent_update))
+        env_updates = self._worker_factory.prepare_worker_messages(
             env_update, preprocess=copy.deepcopy)
         for worker, agent_up, env_up in zip(self._workers, agent_updates,
                                             env_updates):
@@ -225,7 +227,8 @@ class LocalSampler(Sampler):
         """
         self.__dict__.update(state)
         self._workers = [
-            self._factory(i) for i in range(self._factory.n_workers)
+            self._worker_factory(i) for
+            i in range(self._worker_factory.n_workers)
         ]
         for worker, agent, env in zip(self._workers, self._agents, self._envs):
             worker.update_agent(agent)
