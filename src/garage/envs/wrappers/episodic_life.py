@@ -15,15 +15,17 @@ class EpisodicLife(gym.Wrapper):
     def __init__(self, env):
         super().__init__(env)
         self._lives = 0
-        self._was_real_done = True
+        self._was_fake_done = False
 
     def step(self, action):
         """gym.Env step function."""
         obs, reward, done, info = self.env.step(action)
-        self._was_real_done = done
         lives = self.env.unwrapped.ale.lives()
         if lives < self._lives and lives > 0:
             done = True
+            self._was_fake_done = True
+        else:
+            self._was_fake_done = False
         self._lives = lives
         return obs, reward, done, info
 
@@ -33,7 +35,7 @@ class EpisodicLife(gym.Wrapper):
 
         Reset only when lives are lost.
         """
-        if self._was_real_done:
+        if not self._was_fake_done:
             obs = self.env.reset(**kwargs)
         else:
             # no-op step
