@@ -28,7 +28,7 @@ class FragmentWorker(DefaultWorker):
 
     """
 
-    DEFAULT_N_ENVS = 8
+    DEFAULT_N_ENVS = 1
 
     def __init__(self,
                  *,
