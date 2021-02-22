@@ -19,7 +19,8 @@ class CategoricalCNNModule(nn.Module):
     by a fully-connected layer.
 
     Args:
-        input_var (torch.tensor): Input tensor of the model.
+        input_shape (tuple[int]): Shape of the input. Based on 'CHW' data
+            format: [channel, height, width].
         output_dim (int): Output dimension of the model.
         kernel_sizes (tuple[int]): Dimension of the conv filters.
             For example, (3, 5) means there are two convolutional layers.
@@ -68,7 +69,7 @@ class CategoricalCNNModule(nn.Module):
     """
 
     def __init__(self,
-                 input_var,
+                 input_shape,
                  output_dim,
                  kernel_sizes,
                  hidden_channels,
@@ -88,7 +89,7 @@ class CategoricalCNNModule(nn.Module):
                  layer_normalization=False,
                  is_image=True):
         super().__init__()
-        self._input_var = input_var
+        self._input_shape = input_shape
         self._action_dim = output_dim
         self._kernel_sizes = kernel_sizes
         self._strides = strides
@@ -109,7 +110,7 @@ class CategoricalCNNModule(nn.Module):
         self._is_image = is_image
 
         self._cnn_module = CNNModule(
-            input_var=self._input_var,
+            input_shape=self._input_shape,
             kernel_sizes=self._kernel_sizes,
             strides=self._strides,
             hidden_channels=self._hidden_conv_channels,

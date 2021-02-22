@@ -87,7 +87,7 @@ class DiscreteCNNQFunction(DiscreteCNNModule):
                  is_image=True):
 
         self._env_spec = env_spec
-        input_shape = (1, ) + env_spec.observation_space.shape
+        input_shape = env_spec.observation_space.shape
         output_dim = env_spec.action_space.flat_dim
         super().__init__(input_shape=input_shape,
                          output_dim=output_dim,

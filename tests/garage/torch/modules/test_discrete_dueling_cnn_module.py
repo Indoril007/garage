@@ -26,8 +26,8 @@ def test_dueling_output_values(output_dim, kernel_sizes, hidden_channels,
     input_width = 32
     input_height = 32
     in_channel = 3
-    input_shape = (batch_size, in_channel, input_height, input_width)
-    obs = torch.rand(input_shape)
+    input_shape = (in_channel, input_height, input_width)
+    obs = torch.rand((batch_size, ) + input_shape)
 
     module = DiscreteDuelingCNNModule(input_shape=input_shape,
                                       output_dim=output_dim,
@@ -41,7 +41,7 @@ def test_dueling_output_values(output_dim, kernel_sizes, hidden_channels,
                                       output_w_init=nn.init.ones_,
                                       is_image=False)
 
-    cnn = CNNModule(input_var=obs,
+    cnn = CNNModule(input_shape=input_shape,
                     hidden_channels=hidden_channels,
                     kernel_sizes=kernel_sizes,
                     strides=strides,
@@ -79,11 +79,10 @@ def test_dueling_output_values(output_dim, kernel_sizes, hidden_channels,
                          [(1, (32, ), (1, ), (1, ))])
 def test_without_nonlinearity(output_dim, hidden_channels, kernel_sizes,
                               strides):
-    batch_size = 64
     input_width = 32
     input_height = 32
     in_channel = 3
-    input_shape = (batch_size, in_channel, input_height, input_width)
+    input_shape = (in_channel, input_height, input_width)
 
     module = DiscreteDuelingCNNModule(input_shape=input_shape,
                                       output_dim=output_dim,
@@ -110,8 +109,8 @@ def test_is_pickleable(output_dim, hidden_channels, kernel_sizes, strides):
     input_width = 32
     input_height = 32
     in_channel = 3
-    input_shape = (batch_size, in_channel, input_height, input_width)
-    input_a = torch.ones(input_shape)
+    input_shape = (in_channel, input_height, input_width)
+    input_a = torch.ones((batch_size, ) + input_shape)
 
     model = DiscreteDuelingCNNModule(input_shape=input_shape,
                                      output_dim=output_dim,

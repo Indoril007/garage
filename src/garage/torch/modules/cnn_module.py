@@ -14,8 +14,8 @@ class CNNModule(nn.Module):
     """Convolutional neural network (CNN) model in pytorch.
 
     Args:
-        input_var (pytorch.tensor): Input tensor of the model.
-            Based on 'NCHW' data format: [batch_size, channel, height, width].
+        input_shape (tuple[int]): Shape of the input. Based on 'CHW' data
+            format: [channel, height, width].
         kernel_sizes (tuple[int]): Dimension of the conv filters.
             For example, (3, 5) means there are two convolutional layers.
             The filter for first layer is of dimension (3 x 3)
@@ -55,7 +55,7 @@ class CNNModule(nn.Module):
     """
 
     def __init__(self,
-                 input_var,
+                 input_shape,
                  hidden_channels,
                  kernel_sizes,
                  strides,
@@ -89,7 +89,7 @@ class CNNModule(nn.Module):
         self._is_image = is_image
 
         self._cnn_layers = nn.ModuleList()
-        self._in_channel = input_var.shape[1]  # read in N, C, H, W
+        self._in_channel = input_shape[0]
         self._CNNCell()
 
     @classmethod

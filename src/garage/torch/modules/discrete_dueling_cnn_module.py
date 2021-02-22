@@ -91,8 +91,7 @@ class DiscreteDuelingCNNModule(nn.Module):
 
         super().__init__()
 
-        input_var = torch.zeros(input_shape)
-        cnn_module = CNNModule(input_var=input_var,
+        cnn_module = CNNModule(input_shape=input_shape,
                                kernel_sizes=kernel_sizes,
                                strides=strides,
                                hidden_w_init=hidden_w_init,
@@ -107,6 +106,7 @@ class DiscreteDuelingCNNModule(nn.Module):
                                pool_stride=pool_stride,
                                is_image=is_image)
 
+        input_var = torch.zeros((1, ) + input_shape)  # leading 1 is batch dim
         with torch.no_grad():
             cnn_out = cnn_module(input_var)
         flat_dim = torch.flatten(cnn_out, start_dim=1).shape[1]

@@ -22,6 +22,8 @@ class TestCNNModule:
             (self.batch_size, self.in_channel, self.input_height,
              self.input_width),
             dtype=self.dtype)  # minibatch size 64, image size [3, 32, 32]
+        # input shape excluding batch dimension
+        self.input_shape = tuple(self.input.shape[1:])
 
     @pytest.mark.parametrize(
         'kernel_sizes, hidden_channels, strides, paddings', [
@@ -45,7 +47,7 @@ class TestCNNModule:
 
         """
         module_with_nonlinear_function_and_module = CNNModule(
-            input_var=self.input,
+            input_shape=self.input_shape,
             hidden_channels=hidden_channels,
             kernel_sizes=kernel_sizes,
             strides=strides,
@@ -55,7 +57,7 @@ class TestCNNModule:
             hidden_w_init=nn.init.xavier_uniform_)
 
         module_with_nonlinear_module_instance_and_function = CNNModule(
-            input_var=self.input,
+            input_shape=self.input_shape,
             hidden_channels=hidden_channels,
             kernel_sizes=kernel_sizes,
             strides=strides,
@@ -99,7 +101,7 @@ class TestCNNModule:
             paddings (tuple[int]): value of zero-padding.
 
         """
-        model = CNNModule(input_var=self.input,
+        model = CNNModule(input_shape=self.input_shape,
                           hidden_channels=hidden_channels,
                           kernel_sizes=kernel_sizes,
                           strides=strides,
@@ -136,7 +138,7 @@ class TestCNNModule:
             strides (tuple[int]): strides.
 
         """
-        model = CNNModule(input_var=self.input,
+        model = CNNModule(input_shape=self.input_shape,
                           hidden_channels=hidden_channels,
                           kernel_sizes=kernel_sizes,
                           strides=strides)
@@ -158,7 +160,7 @@ class TestCNNModule:
                               ((3, 3), (32, 64), (1, 1), 2, 2)])
     def test_output_with_max_pooling(self, kernel_sizes, hidden_channels,
                                      strides, pool_shape, pool_stride):
-        model = CNNModule(input_var=self.input,
+        model = CNNModule(input_shape=self.input_shape,
                           hidden_channels=hidden_channels,
                           kernel_sizes=kernel_sizes,
                           strides=strides,
@@ -182,7 +184,7 @@ class TestCNNModule:
         """
         expected_msg = 'Non linear function .* is not supported'
         with pytest.raises(ValueError, match=expected_msg):
-            CNNModule(input_var=self.input,
+            CNNModule(input_shape=self.input_shape,
                       hidden_channels=(32, ),
                       kernel_sizes=(3, ),
                       strides=(1, ),

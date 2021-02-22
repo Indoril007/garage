@@ -23,10 +23,12 @@ class TestCategoricalCNNModule:
             (self.batch_size, self.in_channel, self.input_height,
              self.input_width),
             dtype=self.dtype)  # minibatch size 64, image size [3, 32, 32]
+        # shape exclusing batch dim
+        self.input_shape = tuple(self.input.shape[1:])
 
     def test_dist(self):
         model = CategoricalCNNModule(
-            input_var=self.input,
+            input_shape=self.input_shape,
             output_dim=1,
             kernel_sizes=((3), ),
             hidden_channels=((5), ),
@@ -45,7 +47,7 @@ class TestCategoricalCNNModule:
         ])
     def test_is_pickleable(self, output_dim, hidden_channels, kernel_sizes,
                            strides, hidden_sizes):
-        model = CategoricalCNNModule(input_var=self.input,
+        model = CategoricalCNNModule(input_shape=self.input_shape,
                                      output_dim=output_dim,
                                      kernel_sizes=kernel_sizes,
                                      hidden_channels=hidden_channels,

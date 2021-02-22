@@ -14,7 +14,7 @@ class DiscreteCNNModule(nn.Module):
     of discrete outputs.
 
     Args:
-        input_shape (tuple[int]): Shape of the input. Based on 'NCHW' data
+        input_shape (tuple[int]): Shape of the input. Based on 'CHW' data
             format: [batch_size, channel, height, width].
         output_dim (int): Output dimension of the fully-connected layer.
         kernel_sizes (tuple[int]): Dimension of the conv filters.
@@ -90,8 +90,7 @@ class DiscreteCNNModule(nn.Module):
 
         super().__init__()
 
-        input_var = torch.zeros(input_shape)
-        cnn_module = CNNModule(input_var=input_var,
+        cnn_module = CNNModule(input_shape=input_shape,
                                kernel_sizes=kernel_sizes,
                                strides=strides,
                                hidden_w_init=hidden_w_init,
@@ -106,6 +105,7 @@ class DiscreteCNNModule(nn.Module):
                                pool_stride=pool_stride,
                                is_image=is_image)
 
+        input_var = torch.zeros((1, ) + input_shape)  # leading 1 is batch dim
         with torch.no_grad():
             cnn_out = cnn_module(input_var)
         flat_dim = torch.flatten(cnn_out, start_dim=1).shape[1]
