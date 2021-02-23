@@ -1,7 +1,6 @@
 """PyTorch Modules."""
 # yapf: disable
 # isort:skip_file
-from garage.torch.modules.categorical_cnn_module import CategoricalCNNModule
 from garage.torch.modules.cnn_module import CNNModule
 from garage.torch.modules.gaussian_mlp_module import (
     GaussianMLPIndependentStdModule)  # noqa: E501
@@ -17,7 +16,6 @@ from garage.torch.modules.discrete_dueling_cnn_module import (
 # yapf: enable
 
 __all__ = [
-    'CategoricalCNNModule',
     'CNNModule',
     'DiscreteCNNModule',
     'DiscreteDuelingCNNModule',
