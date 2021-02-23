@@ -165,3 +165,27 @@ class TestCategoricalCNNPolicy:
         obs = env.observation_space.sample()
         action, _ = policy.get_action(env.observation_space.flatten(obs))
         env.step(action)
+
+    @pytest.mark.parametrize(
+        'hidden_channels, kernel_sizes, strides, hidden_sizes', [
+            ((3, ), (3, ), (1, ), (4, )),
+            ((3, 3), (3, 3), (1, 1), (4, 4)),
+            ((3, 3), (3, 3), (2, 2), (4, 4)),
+        ])
+    def test_consistent_output(self, hidden_channels, kernel_sizes, strides,
+                               hidden_sizes):
+        """Test get_action function."""
+        env = GymEnv(DummyDiscretePixelEnv(), is_image=True)
+        env = self._initialize_obs_env(env)
+        policy = CategoricalCNNPolicy(env=env,
+                                      kernel_sizes=kernel_sizes,
+                                      hidden_channels=hidden_channels,
+                                      strides=strides,
+                                      hidden_sizes=hidden_sizes)
+        env.reset()
+        obs = env.step(1).observation
+        torch_obs = torch.Tensor([obs])
+        dist_1, _ = policy.forward(torch_obs)
+        dist_2, _ = policy.forward(torch_obs)
+
+        assert (dist_1.logits == dist_2.logits).all()
