@@ -119,8 +119,7 @@ class DiscreteCNNPolicy(StochasticPolicy):
         if isinstance(self._env_spec.observation_space, akro.Image):
             observations = torch.div(observations, 255.0)
 
-        observations = torch.Tensor(observations[0])
-        output = self._cnn_module(observations)
-        logits = torch.softmax(output, axis=1)
+        observations = torch.Tensor(observations)
+        logits = self._cnn_module(observations)
         dist = torch.distributions.Bernoulli(logits=logits)
         return dist, {}

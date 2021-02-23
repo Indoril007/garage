@@ -39,11 +39,10 @@ class TestCategoricalCNNPolicy:
     def test_get_action(self, action_dim, kernel_sizes, hidden_channels,
                         strides, paddings):
         """Test get_action function."""
-        batch_size = 64
         input_width = 32
         input_height = 32
         in_channel = 3
-        input_shape = (batch_size, in_channel, input_height, input_width)
+        input_shape = (in_channel, input_height, input_width)
         env = GymEnv(
             DummyDiscreteEnv(obs_dim=input_shape, action_dim=action_dim))
 
@@ -77,11 +76,10 @@ class TestCategoricalCNNPolicy:
     def test_get_actions(self, action_dim, kernel_sizes, hidden_channels,
                          strides, paddings):
         """Test get_actions function."""
-        batch_size = 64
         input_width = 32
         input_height = 32
         in_channel = 3
-        input_shape = (batch_size, in_channel, input_height, input_width)
+        input_shape = (in_channel, input_height, input_width)
         env = GymEnv(
             DummyDiscreteEnv(obs_dim=input_shape, action_dim=action_dim))
 
@@ -117,11 +115,10 @@ class TestCategoricalCNNPolicy:
     def test_is_pickleable(self, action_dim, kernel_sizes, hidden_channels,
                            strides, paddings):
         """Test if policy is pickable."""
-        batch_size = 64
         input_width = 32
         input_height = 32
         in_channel = 3
-        input_shape = (batch_size, in_channel, input_height, input_width)
+        input_shape = (in_channel, input_height, input_width)
         env = GymEnv(
             DummyDiscreteEnv(obs_dim=input_shape, action_dim=action_dim))
 
@@ -163,11 +160,10 @@ class TestCategoricalCNNPolicy:
         """Test if a flattened image obs is passed to get_action
            then it is unflattened.
         """
-        batch_size = 64
         input_width = 32
         input_height = 32
         in_channel = 3
-        input_shape = (batch_size, in_channel, input_height, input_width)
+        input_shape = (in_channel, input_height, input_width)
         env = GymEnv(
             DummyDiscreteEnv(obs_dim=input_shape, action_dim=action_dim))
         env = self._initialize_obs_env(env)
