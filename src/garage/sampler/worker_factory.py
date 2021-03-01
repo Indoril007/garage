@@ -53,10 +53,13 @@ class WorkerFactory:
             seed=get_seed(),
             n_workers=psutil.cpu_count(logical=False),
             worker_class=DefaultWorker,
-            worker_args=None):
+            worker_args=None,
+            device=None):
         self.n_workers = n_workers
         self._seed = seed
         self._max_episode_length = max_episode_length
+        self._device = device
+        self._is_tf_worker = is_tf_worker
         if is_tf_worker:
             worker_class = TFWorkerClassWrapper(worker_class)
         self._worker_class = worker_class
@@ -64,6 +67,29 @@ class WorkerFactory:
             self._worker_args = {}
         else:
             self._worker_args = worker_args
+
+    def load_device(self, obj):
+        """
+        Loads the given object onto the right device.
+
+        This function will return the object as is if it is not a torch object,
+        if self._device has not been set, or if the object has no "to(device)"
+        function
+
+        Parameters
+        ----------
+        obj : The object to be loaded onto the device
+
+        Returns
+        -------
+        The object loaded onto the device
+
+        """
+        if self._is_tf_worker or self._device is None or \
+                not hasattr(obj, 'to'):
+            return obj
+        else:
+            return obj.to(self._device)
 
     def prepare_worker_messages(self, objs, preprocess=identity_function):
         """Take an argument and canonicalize it into a list for all workers.
@@ -90,9 +116,10 @@ class WorkerFactory:
             if len(objs) != self.n_workers:
                 raise ValueError(
                     'Length of list doesn\'t match number of workers')
-            return [preprocess(obj) for obj in objs]
+            return [preprocess(self.load_device(obj)) for obj in objs]
         else:
-            return [preprocess(objs) for _ in range(self.n_workers)]
+            return [preprocess(self.load_device(objs))
+                    for _ in range(self.n_workers)]
 
     def __call__(self, worker_number):
         """Construct a worker given its number.
